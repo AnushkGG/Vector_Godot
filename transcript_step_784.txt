@@ -1,0 +1,87 @@
+Created At: 2026-10-15T18:41:58Z
+Completed At: 2026-10-15T18:41:58Z
+File Path: `file:///c:/Users/ANANYA%20KOMARWAR/Downloads/vector/GodotVector/scripts/Chaser.gd`
+Total Lines: 140
+Total Bytes: 5287
+Showing lines 1 to 140
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: extends Node2D
+2: ## Computer-controlled chaser silhouette.
+3: ## Placed in world space as a sibling of Player under Main.
+4: ## Moves only in _physics_process; drawn as a solid black running figure.
+5: 
+6: signal caught   ## Emitted once when gap <= CATCH_DISTANCE
+7: 
+8: @export var FOLLOW_GAP    : float = 450.0   ## Fixed gap (px) while player runs freely
+9: @export var CLOSE_SPEED   : float = 55.0    ## px/s the gap shrinks when player is blocked
+10: @export var RECOVER_SPEED : float = 1.8     ## lerp rate back to FOLLOW_GAP after block clears
+11: @export var CATCH_DISTANCE: float = 40.0    ## Gap at which game over is triggered
+12: 
+13: # ── Silhouette body constants (identical to PlayerVisual so figures match) ──
+14: const C          : Color = Color(0.0, 0.0, 0.0)
+15: const FOOT_Y     : float = 50.0
+16: const UPR_LEG    : float = 18.0
+17: const LWR_LEG    : float = 18.0
+18: const HIP_Y      : float = FOOT_Y - UPR_LEG - LWR_LEG   # = 14.0
+19: const TORSO_H    : float = 26.0
+20: const HEAD_R     : float = 9.0
+21: const UPR_ARM    : float = 13.0
+22: const LWR_ARM    : float = 11.0
+23: const ARM_SWING  : float = 0.70
+24: const ELBOW_BASE : float = 1.20
+25: 
+26: # ── Runtime state ─────────────────────────────────────────────
+27: var _player      : CharacterBody2D
+28: var _gap         : float = 450.0
+29: var _caught_once : bool  = false
+30: var _anim_time   : float = 0.0
+31: 
+32: ## Call this every time a run starts (start, next level).
+33: ## p must be th
+<truncated 2329 bytes>
+ 0.5 + lean
+97: 
+98: 	var hip : Vector2 = Vector2(0.0, HIP_Y + bob)
+99: 	var sho : Vector2 = _tip(hip, lean - PI * 0.5, TORSO_H)
+100: 	var hd  : Vector2 = _tip(sho, lean - PI * 0.5, HEAD_R + 2.0)
+101: 
+102: 	_draw_leg(hip, base + lsw,  knee)
+103: 	_draw_leg(hip, base - lsw, -knee)
+104: 
+105: 	_seg(hip, sho, 6)
+106: 	_draw_arm(sho, base + lsw * (ARM_SWING / 0.42))
+107: 	_draw_arm(sho, base - lsw * (ARM_SWING / 0.42))
+108: 
+109: 	draw_circle(hd, HEAD_R, C)
+110: 
+111: # ── Drawing helpers ───────────────────────────────────────────
+112: 
+113: func _seg(a: Vector2, b: Vector2, w: int) -> void:
+114: 	draw_line(a, b, C, float(w), true)
+115: 	draw_circle(a, float(w) * 0.48, C)
+116: 	draw_circle(b, float(w) * 0.48, C)
+117: 
+118: func _tip(origin: Vector2, angle: float, length: float) -> Vector2:
+119: 	return origin + Vector2(cos(angle), sin(angle)) * length
+120: 
+121: func _draw_leg(hip_pt: Vector2, base_ang: float, knee_bend: float) -> void:
+122: 	var knee_pt : Vector2 = _tip(hip_pt, base_ang, UPR_LEG)
+123: 	var foot_pt : Vector2 = _tip(knee_pt, base_ang + knee_bend, LWR_LEG)
+124: 	foot_pt.y = minf(foot_pt.y, FOOT_Y)
+125: 	_seg(hip_pt, knee_pt, 5)
+126: 	_seg(knee_pt, foot_pt, 5)
+127: 	var dir : Vector2 = (foot_pt - knee_pt).normalized()
+128: 	draw_line(foot_pt, foot_pt + dir * 5.0 + Vector2(2.0, 0.0), C, 6.0, true)
+129: 
+130: func _draw_arm(shoulder_pt: Vector2, upper_ang: float) -> void:
+131: 	var ua  : float = clampf(upper_ang, 0.20, PI * 1.70)
+132: 	var fwd : float = clampf(1.0 - (ua / (PI * 0.5)), -1.0, 1.0)
+133: 	var bend: float = ELBOW_BASE + maxf(0.0, fwd) * 0.45
+134: 	var fa  : float = clampf(ua - bend, PI * 0.05, PI * 1.50)
+135: 	var elbow : Vector2 = _tip(shoulder_pt, ua, UPR_ARM)
+136: 	var hand  : Vector2 = _tip(elbow, fa, LWR_ARM)
+137: 	hand.y = maxf(hand.y, shoulder_pt.y)
+138: 	_seg(shoulder_pt, elbow, 4)
+139: 	_seg(elbow, hand, 4)
+140: 
+The above content shows the entire, complete file contents of the requested file.

@@ -1,0 +1,124 @@
+Created At: 2026-10-15T19:10:28Z
+Completed At: 2026-10-15T19:10:32Z
+
+				The command completed successfully.
+				Output:
+				extends CharacterBody2D
+
+signal died
+
+var run_speed: float = 500.0
+const JUMP_VELOCITY = -700.0
+const GRAVITY = 1600.0
+
+var state = "run"
+var stun_timer = 0.0
+
+@onready var anim = $Sprite2D
+@onready var dust = $DustParticles
+@onready var col_normal = $ColNormal
+@onready var col_slide = $ColSlide
+@onready var sfx_jump = $SfxJump
+@onready var sfx_hit = $SfxHit
+
+func _physics_process(delta):
+    if not is_on_floor():
+        velocity.y += GRAVITY * delta
+
+    if state == "stun":
+        stun_timer -= delta
+        velocity.x = 0.0
+        # Jump cancels stun so player can leap over the obstacle
+        if Input.is_action_just_pressed("jump") and is_on_floor():
+            state = "run"
+            stun_timer = 0.0
+            modulate = Color(1, 1, 1)
+            velocity.y = JUMP_VELOCITY
+            sfx_jump.play()
+        if stun_timer <= 0:
+            state = "run"
+            modulate = Color(1, 1, 1)
+    else:
+        velocity.x = run_speed
+        if Input.is_action_pressed("slide") and is_on_floor():
+            state = "slide"
+            col_normal.disabled = true
+            col_slide.disabled = false
+            dust.emitting = true
+        else:
+            if state == "slide":
+                state = "run"
+                col_normal.disabled = false
+                col_slide.disabled = true
+                dust.emitting = false
+                
+        if Input.is_action_just_pressed("jump") and is_on_floor() and state != "slide":
+            velocity.y = JUMP_VELOCITY
+            sfx_jump.play()
+            
+        if not is_on_floor():
+            if velocity.y < 0:
+                state = "jump"
+            else:
+                state = "fall"
+        elif state != "slide":
+            state = "run"
+
+    var rect_x = 0
+    if state == "run":
+        rect_x = (Engine.get_frames_drawn() / 10 % 2) * 100
+    elif st
+<truncated 3121 bytes>
+"?�"?�"?�"?
+var _player      : CharacterBody2D
+var _spawner     : Node2D
+var _gap         : float  = 260.0   ## logical gap �?" used for catch check
+var _chaser_y    : float  = GROUND_CENTER
+var _vel_y       : float  = 0.0
+var _on_ground   : bool   = true
+## "run" | "jump" | "fall" | "slide" | "grab"
+var _ai_state    : String = "run"
+var _slide_timer : float  = 0.0
+var _grab_timer  : float  = 0.0
+var _caught_once : bool   = false
+var _anim_time   : float  = 0.0
+
+# �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+
+func _ready() -> void:
+	z_index = 2      # above background and ground (z = 0)
+	visible = false  # shown only after reset()
+
+## Called by LevelManager on Start and Next Level.
+func reset(p: CharacterBody2D) -> void:
+	_player      = p
+	_spawner     = get_parent().get_node_or_null("Spawner")
+	_gap         = FOLLOW_GAP
+	_chaser_y    = GROUND_CENTER
+	_vel_y       = 0.0
+	_on_ground   = true
+	_ai_state    = "run"
+	_slide_timer = 0.0
+	_grab_timer  = 0.0
+	_caught_once = false
+	_anim_time   = 0.0
+	visible      = true
+	if _player:
+		global_position = Vector2(_player.global_position.x - _gap, GROUND_CENTER)
+	queue_redraw()
+
+## Called by LevelManager on game-over / level-complete / menu.
+func deactivate() -> void:
+	visible = false
+
+# �"?�"? Physics (gap + own jump arc + AI) �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+
+func _physics_process(delta: float) -> void:
+	if not visible or not _player:
+		return
+
+	var player_state   : String = str(_player.get("state"))
+	var player_blocked : bool   = player_state == "stun"
+	var speed          : float  = maxf(
+		_player.get("run_speed") if _player.get("run_speed") else 500.0, 1.0)
+

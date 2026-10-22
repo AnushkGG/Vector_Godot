@@ -1,0 +1,74 @@
+Created At: 2026-10-15T20:16:27Z
+Completed At: 2026-10-15T20:16:27Z
+File Path: `file:///c:/Users/ANANYA%20KOMARWAR/Downloads/vector/GodotVector/scripts/Chaser.gd`
+Total Lines: 405
+Total Bytes: 16302
+Showing lines 1 to 405
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: extends Node2D
+2: ## AI-controlled chaser – world-space Node2D sibling of Player under Main.
+3: ## Moves only in _physics_process. Draws own running/jump/slide/aim silhouette + gun.
+4: 
+5: signal caught   ## emitted once after 0.3 s aim pose (via call_deferred for flash)
+6: 
+7: # ── Exported tunables ─────────────────────────────────────────
+8: @export var FOLLOW_GAP    : float = 260.0   ## gap (px) while player runs freely
+9: @export var CLOSE_SPEED   : float = 90.0    ## px/s closing speed when player is stuck (~2-3 s)
+10: @export var RECOVER_SPEED : float = 1.8     ## lerp rate back to FOLLOW_GAP
+11: @export var CATCH_DISTANCE: float = 40.0    ## gap that starts the aim pose + game over
+12: @export var LOOKAHEAD_TIME: float = 0.35    ## seconds of travel to scan ahead for obstacles
+13: 
+14: # ── Physics (matches Player.gd exactly) ───────────────────────
+15: const JUMP_VEL      : float = -700.0
+16: const GRAVITY_CONST : float = 1600.0
+17: ## Center-y when on ground (feet land at GROUND_Y = 560 = center + FOOT_Y 50)
+18: const GROUND_CENTER : float = 510.0
+19: 
+20: # ── Screen layout ─────────────────────────────────────────────
+21: ## Camera2D.position.x offset on Player (Main.tscn: Vector2(300,-120))
+22: const CAM_OFFSET_X : float = 300.0
+23: ## Min px from screen-left to chaser draw origin
+24: const EDGE_MARGIN  : float = 4
+<truncated 14670 bytes>
+────────
+366: 
+367: func _seg(a: Vector2, b: Vector2, w: int) -> void:
+368: 	draw_line(a, b, C, float(w), true)
+369: 	draw_circle(a, float(w) * 0.48, C)
+370: 	draw_circle(b, float(w) * 0.48, C)
+371: 
+372: func _tip(origin: Vector2, angle: float, length: float) -> Vector2:
+373: 	return origin + Vector2(cos(angle), sin(angle)) * length
+374: 
+375: ## Computes hand position using the same formula as _draw_arm (for gun placement).
+376: func _arm_hand_pos(shoulder_pt: Vector2, upper_ang: float) -> Vector2:
+377: 	var ua   : float = clampf(upper_ang, 0.20, PI * 1.70)
+378: 	var fwd  : float = clampf(1.0 - (ua / (PI * 0.5)), -1.0, 1.0)
+379: 	var bend : float = ELBOW_BASE + maxf(0.0, fwd) * 0.45
+380: 	var fa   : float = clampf(ua - bend, PI * 0.05, PI * 1.50)
+381: 	var elbow : Vector2 = _tip(shoulder_pt, ua, UPR_ARM)
+382: 	var hand  : Vector2 = _tip(elbow, fa, LWR_ARM)
+383: 	hand.y = maxf(hand.y, shoulder_pt.y)
+384: 	return hand
+385: 
+386: func _draw_leg(hip_pt: Vector2, base_ang: float, knee_bend: float) -> void:
+387: 	var knee_pt : Vector2 = _tip(hip_pt, base_ang, UPR_LEG)
+388: 	var foot_pt : Vector2 = _tip(knee_pt, base_ang + knee_bend, LWR_LEG)
+389: 	foot_pt.y = minf(foot_pt.y, FOOT_Y)
+390: 	_seg(hip_pt, knee_pt, 5)
+391: 	_seg(knee_pt, foot_pt, 5)
+392: 	var dir : Vector2 = (foot_pt - knee_pt).normalized()
+393: 	draw_line(foot_pt, foot_pt + dir * 5.0 + Vector2(2.0, 0.0), C, 6.0, true)
+394: 
+395: func _draw_arm(shoulder_pt: Vector2, upper_ang: float) -> void:
+396: 	var ua   : float = clampf(upper_ang, 0.20, PI * 1.70)
+397: 	var fwd  : float = clampf(1.0 - (ua / (PI * 0.5)), -1.0, 1.0)
+398: 	var bend : float = ELBOW_BASE + maxf(0.0, fwd) * 0.45
+399: 	var fa   : float = clampf(ua - bend, PI * 0.05, PI * 1.50)
+400: 	var elbow : Vector2 = _tip(shoulder_pt, ua, UPR_ARM)
+401: 	var hand  : Vector2 = _tip(elbow, fa, LWR_ARM)
+402: 	hand.y = maxf(hand.y, shoulder_pt.y)
+403: 	_seg(shoulder_pt, elbow, 4)
+404: 	_seg(elbow, hand, 4)
+405: 
+The above content shows the entire, complete file contents of the requested file.

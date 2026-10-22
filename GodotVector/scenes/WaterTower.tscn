@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/WaterTower.gd" id="1_scr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_climb"]
+size = Vector2(140, 310)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_top"]
+size = Vector2(130, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_legs"]
+size = Vector2(120, 230)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_side"]
+size = Vector2(16, 80)
+
+[node name="WaterTower" type="Node2D" groups=["water_towers"]]
+script = ExtResource("1_scr")
+
+[node name="ClimbZone" type="Area2D" parent="." groups=["climbable"]]
+position = Vector2(0, -160)
+metadata/tank_top_y = -320.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClimbZone"]
+shape = SubResource("RectangleShape2D_climb")
+
+[node name="TankTop" type="StaticBody2D" parent="."]
+position = Vector2(0, -320)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TankTop"]
+position = Vector2(0, 5)
+shape = SubResource("RectangleShape2D_top")
+one_way_collision = true
+
+[node name="Legs" type="StaticBody2D" parent="." groups=["tower_legs"]]
+position = Vector2(0, -115)
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Legs"]
+shape = SubResource("RectangleShape2D_legs")
+
+[node name="SideStun" type="Area2D" parent="."]
+position = Vector2(0, -272.5)
+
+[node name="ColLeft" type="CollisionShape2D" parent="SideStun"]
+position = Vector2(-60, 0)
+shape = SubResource("RectangleShape2D_side")
+
+[node name="ColRight" type="CollisionShape2D" parent="SideStun"]
+position = Vector2(60, 0)
+shape = SubResource("RectangleShape2D_side")

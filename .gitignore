@@ -1,0 +1,7 @@
+# Godot 4 cache
+.godot/
+GodotVector/.godot/
+
+# Temporary / Scratch files
+*.tmp
+*.log

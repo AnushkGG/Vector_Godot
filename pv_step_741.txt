@@ -1,0 +1,80 @@
+Created At: 2026-10-13T12:21:37Z
+Completed At: 2026-10-13T12:21:37Z
+File Path: `file:///c:/Users/ANANYA%20KOMARWAR/Downloads/vector/GodotVector/scripts/Spawner.gd`
+Total Lines: 381
+Total Bytes: 16794
+Showing lines 230 to 381
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+230: func _on_spike(body: Node, _area: Node) -> void:
+231:     if body.name == "Player" and body.get("state") != "dead":
+232:         body.set("state", "dead")
+233:         body.set_physics_process(false)
+234:         get_tree().create_timer(0.4).timeout.connect(
+235:             func() -> void:
+236:                 if is_instance_valid(body):
+237:                     body.died.emit()
+238:         )
+239: 
+240: # ── collectibles ────────────────────────────────────────────
+241: 
+242: func _double_block(cx: float) -> Node2D:
+243:     ## Two 80x60 boxes with a 100 px gap; one big jump (~440 px) clears both.
+244:     var root := Node2D.new()
+245:     root.add_child(_solid_box(cx,         GROUND_Y - 30.0, 80.0, 60.0, _tex_crate))
+246:     root.add_child(_solid_box(cx + 180.0, GROUND_Y - 30.0, 80.0, 60.0, _tex_crate))
+247:     return root
+248: 
+249: func _moving_obstacle(cx: float) -> Node2D:
+250:     ## Bobs vertically: grounded (jump over) -> 75 px up (slide under).
+251:     var obs : Node2D = _mov_script.new()
+252:     obs.position = Vector2(cx, GROUND_Y - 30.0)
+253:     obs.call("init", 75.0, 0.65 + randf() * 0.3)  # freq 0.65-0.95 Hz
+254:     var sp := Sprite2D.new()
+255:     sp.texture  = _tex_crate
+256:     var ts := _tex_crate.get_size()
+257:     sp.scale    = Vector2(80.0 / ts.x, 60.0 / ts.y)
+258:     sp.modulate = Color(0.75, 0.55, 1.0)           # purple tint - visually distinct
+259:     obs.add_child(sp)
+260:     var col := CollisionShape2D.new()
+261:     var
+<truncated 4603 bytes>
+trajectory.
+344: func _spawn_coin_arc(peak_x: float, peak_y: float, obs_zone: Rect2) -> void:
+345:     var half_span := (group_max - 1) * coin_spacing * 0.5
+346:     var start_x   := peak_x - half_span
+347:     # Ensure arc doesn't start within group_gap of last group
+348:     if start_x < _last_group_end_x + group_gap:
+349:         start_x = _last_group_end_x + group_gap
+350:         peak_x  = start_x + half_span
+351:     # Parabola: y = peak_y + k*(x-peak_x)^2  (opens downward in screen space = upward visually)
+352:     var k := 0.0018   # curvature; adjust so arc edge = GROUND_Y - 30
+353:     var placed := 0
+354:     for i in range(group_max):
+355:         var ax : float = start_x + i * coin_spacing
+356:         var dx : float = ax - peak_x
+357:         var ay : float = peak_y + k * dx * dx
+358:         # Clamp so coins never go below running height
+359:         ay = min(ay, GROUND_Y - 40.0)
+360:         if _clear_of_zone(ax, ay, obs_zone) and _clear_of_siblings(ax, ay):
+361:             add_child(_make_collectible(ax, ay, Collectible.Type.COIN))
+362:             _last_group_end_x = ax
+363:             placed += 1
+364: 
+365: func _make_collectible(x: float, y: float, kind: Collectible.Type) -> Collectible:
+366:     var c := Collectible.new()
+367:     c.kind     = kind
+368:     c.position = Vector2(x, y)
+369:     c.picked_up.connect(func(k: int) -> void: collectible_picked.emit(k))
+370:     var sp := Sprite2D.new()
+371:     sp.texture = _tex_coin if kind == Collectible.Type.COIN else _tex_gem
+372:     if kind == Collectible.Type.DIAMOND:
+373:         sp.scale = Vector2(1.6, 1.6)
+374:     c.add_child(sp)
+375:     var col := CollisionShape2D.new()
+376:     var shp := CircleShape2D.new()
+377:     shp.radius = 14.0 if kind == Collectible.Type.COIN else 20.0
+378:     col.shape  = shp
+379:     c.add_child(col)
+380:     return c
+381: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

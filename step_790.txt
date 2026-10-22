@@ -1,0 +1,125 @@
+Created At: 2026-10-15T18:58:53Z
+Completed At: 2026-10-15T18:59:01Z
+
+				The command completed successfully.
+				Output:
+				extends CharacterBody2D
+
+signal died
+
+var run_speed: float = 500.0
+const JUMP_VELOCITY = -700.0
+const GRAVITY = 1600.0
+
+var state = "run"
+var stun_timer = 0.0
+
+@onready var anim = $Sprite2D
+@onready var dust = $DustParticles
+@onready var col_normal = $ColNormal
+@onready var col_slide = $ColSlide
+@onready var sfx_jump = $SfxJump
+@onready var sfx_hit = $SfxHit
+
+func _physics_process(delta):
+    if not is_on_floor():
+        velocity.y += GRAVITY * delta
+
+    if state == "stun":
+        stun_timer -= delta
+        velocity.x = 0.0
+        # Jump cancels stun so player can leap over the obstacle
+        if Input.is_action_just_pressed("jump") and is_on_floor():
+            state = "run"
+            stun_timer = 0.0
+            modulate = Color(1, 1, 1)
+            velocity.y = JUMP_VELOCITY
+            sfx_jump.play()
+        if stun_timer <= 0:
+            state = "run"
+            modulate = Color(1, 1, 1)
+    else:
+        velocity.x = run_speed
+        if Input.is_action_pressed("slide") and is_on_floor():
+            state = "slide"
+            col_normal.disabled = true
+            col_slide.disabled = false
+            dust.emitting = true
+        else:
+            if state == "slide":
+                state = "run"
+                col_normal.disabled = false
+                col_slide.disabled = true
+                dust.emitting = false
+                
+        if Input.is_action_just_pressed("jump") and is_on_floor() and state != "slide":
+            velocity.y = JUMP_VELOCITY
+            sfx_jump.play()
+            
+        if not is_on_floor():
+            if velocity.y < 0:
+                state = "jump"
+            else:
+                state = "fall"
+        elif state != "slide":
+            state = "run"
+
+    var rect_x = 0
+    if state == "run":
+        rect_x = (Engine.get_frames_drawn() / 10 % 2) * 100
+    elif st
+<truncated 2295 bytes>
+?�"?�"?�"?�"?
+var _time        : float = 0.0
+var _land_squash : float = 0.0
+var _was_floor   : bool  = true
+
+# �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+
+func _process(delta: float) -> void:
+	var p := get_parent()
+	if not p:
+		return
+	var st : String = p.get("state") if p.get("state") else "run"
+
+	if st == "run":
+		var spd : float = p.get("run_speed") if p.get("run_speed") else 500.0
+		_time += delta * 7.5 * clampf(spd / 500.0, 0.6, 2.0)
+
+	var on_floor : bool = p.is_on_floor()
+	if on_floor and not _was_floor:
+		_land_squash = 1.0
+	_was_floor   = on_floor
+	_land_squash = move_toward(_land_squash, 0.0, delta * 6.0)
+
+	queue_redraw()
+
+func _draw() -> void:
+	var p := get_parent()
+	if not p:
+		return
+	var st  : String  = p.get("state") if p.get("state") else "run"
+	var vel : Vector2 = p.velocity
+
+	match st:
+		"run":   _draw_run()
+		"stun":  _draw_run()
+		"jump":  _draw_air(vel.y)
+		"fall":  _draw_air(vel.y)
+		"slide": _draw_slide()
+		_:       _draw_run()
+
+# �"?�"? RUN �"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?�"?
+func _draw_run() -> void:
+	var t    : float = _time
+	var bob  : float = sin(t * 2.0) * 2.5
+	var sqsh : float = _land_squash * 4.0
+	var lean : float = -0.09
+
+	var lsw  : float = sin(t) * 0.42             # leg swing (right leg: +1=forward)
+	var knee : float = maxf(0.0, sin(t + 0.85)) * 0.50
+
+	var hip : Vector2 = Vector2(0.0, HIP_Y + bob + sqsh)
+	var sho : Vector2 = _tip(hip, lean - PI * 0.5, TORSO_H)
+	var hd  : Vector2 = _tip(sho, lean - PI * 0.5, HEAD_R + 2.0)
+

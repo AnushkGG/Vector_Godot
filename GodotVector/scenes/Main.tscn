@@ -1,0 +1,138 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/LevelManager.gd" id="1_lvl"]
+[ext_resource type="Texture2D" path="res://assets/sky.png" id="2_sky"]
+[ext_resource type="Texture2D" path="res://assets/city_far.png" id="3_far"]
+[ext_resource type="Texture2D" path="res://assets/city_mid.png" id="4_mid"]
+[ext_resource type="Texture2D" path="res://assets/ground.png" id="5_gnd"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="6_plr"]
+[ext_resource type="PackedScene" path="res://scenes/Chaser.tscn" id="7_chr"]
+[ext_resource type="AudioStream" path="res://assets/coin.wav" id="8_sfx"]
+[ext_resource type="PackedScene" path="res://scenes/UI.tscn" id="9_ui"]
+[ext_resource type="Script" path="res://scripts/Spawner.gd" id="10_spw"]
+[ext_resource type="Script" path="res://scripts/TransformDemo.gd" id="12_tfd"]
+[ext_resource type="Script" path="res://scripts/ZoomClippingController.gd" id="13_zcl"]
+[ext_resource type="Script" path="res://scripts/Camera.gd" id="14_cam"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gnd"]
+size = Vector2(2500, 200)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_lvl")
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="SkyLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/SkyLayer"]
+texture = ExtResource("2_sky")
+centered = false
+
+[node name="CityFarLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.1, 0)
+motion_mirroring = Vector2(1280, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/CityFarLayer"]
+texture = ExtResource("3_far")
+centered = false
+
+[node name="CityMidLayer" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.3, 0)
+motion_mirroring = Vector2(1280, 0)
+
+[node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/CityMidLayer"]
+texture = ExtResource("4_mid")
+centered = false
+
+[node name="StartGround" type="StaticBody2D" parent="."]
+position = Vector2(0, 560)
+
+[node name="Sprite2D" type="Sprite2D" parent="StartGround"]
+centered = false
+position = Vector2(0, 0)
+scale = Vector2(5, 1)
+texture = ExtResource("5_gnd")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StartGround"]
+position = Vector2(1250, 100)
+shape = SubResource("RectangleShape2D_gnd")
+
+[node name="Player" parent="." instance=ExtResource("6_plr")]
+position = Vector2(300, 510)
+
+[node name="Chaser" parent="." instance=ExtResource("7_chr")]
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(300, -120)
+limit_bottom = 1200
+position_smoothing_enabled = false
+script = ExtResource("14_cam")
+
+
+[node name="Spawner" type="Node2D" parent="."]
+script = ExtResource("10_spw")
+spawn_rate = 0.78
+min_gap = 520.0
+max_gap = 1050.0
+diamonds_per_run = 4
+
+[node name="SfxCoin" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_sfx")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Score" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 700.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 26
+text = "Distance: 0m | Score: 0"
+
+[node name="Coins" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 58.0
+offset_right = 400.0
+offset_bottom = 88.0
+theme_override_colors/font_color = Color(0.00, 0.92, 0.98, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "Crystals: 0"
+
+[node name="Diamonds" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 88.0
+offset_right = 400.0
+offset_bottom = 118.0
+theme_override_colors/font_color = Color(0.65, 0.20, 1.00, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "Power Cores: 0"
+
+[node name="UI" parent="." instance=ExtResource("9_ui")]
+
+[node name="TransformDemo" type="Node2D" parent="CanvasLayer"]
+script = ExtResource("12_tfd")
+z_index = 10
+
+[node name="ZoomClippingController" type="Node2D" parent="CanvasLayer"]
+script = ExtResource("13_zcl")
+z_index = 20

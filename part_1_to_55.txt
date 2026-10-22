@@ -1,0 +1,63 @@
+Created At: 2026-10-15T20:45:03Z
+Completed At: 2026-10-15T20:45:04Z
+File Path: `file:///c:/Users/ANANYA%20KOMARWAR/Downloads/vector/GodotVector/scripts/Chaser.gd`
+Total Lines: 405
+Total Bytes: 16302
+Showing lines 1 to 55
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: extends Node2D
+2: ## AI-controlled chaser – world-space Node2D sibling of Player under Main.
+3: ## Moves only in _physics_process. Draws own running/jump/slide/aim silhouette + gun.
+4: 
+5: signal caught   ## emitted once after 0.3 s aim pose (via call_deferred for flash)
+6: 
+7: # ── Exported tunables ─────────────────────────────────────────
+8: @export var FOLLOW_GAP    : float = 260.0   ## gap (px) while player runs freely
+9: @export var CLOSE_SPEED   : float = 90.0    ## px/s closing speed when player is stuck (~2-3 s)
+10: @export var RECOVER_SPEED : float = 1.8     ## lerp rate back to FOLLOW_GAP
+11: @export var CATCH_DISTANCE: float = 40.0    ## gap that starts the aim pose + game over
+12: @export var LOOKAHEAD_TIME: float = 0.35    ## seconds of travel to scan ahead for obstacles
+13: 
+14: # ── Physics (matches Player.gd exactly) ───────────────────────
+15: const JUMP_VEL      : float = -700.0
+16: const GRAVITY_CONST : float = 1600.0
+17: ## Center-y when on ground (feet land at GROUND_Y = 560 = center + FOOT_Y 50)
+18: const GROUND_CENTER : float = 510.0
+19: 
+20: # ── Screen layout ─────────────────────────────────────────────
+21: ## Camera2D.position.x offset on Player (Main.tscn: Vector2(300,-120))
+22: const CAM_OFFSET_X : float = 300.0
+23: ## Min px from screen-left to chaser draw origin
+24: const EDGE_MARGIN  : float = 40.0
+25: 
+26: # ── Silhouette constants (same as PlayerVisual.gd) ────────────
+27: const C          : Color = Color(0.0, 0.0, 0.0)
+28: const FOOT_Y     : float = 50.0
+29: const UPR_LEG    : float = 18.0
+30: const LWR_LEG    : float = 18.0
+31: const HIP_Y      : float = FOOT_Y - UPR_LEG - LWR_LEG   # = 14.0
+32: const TORSO_H    : float = 26.0
+33: const HEAD_R     : float = 9.0
+34: const UPR_ARM    : float = 13.0
+35: const LWR_ARM    : float = 11.0
+36: const ARM_SWING  : float = 0.70
+37: const ELBOW_BASE : float = 1.20
+38: 
+39: # ── Runtime state ─────────────────────────────────────────────
+40: var _player      : CharacterBody2D
+41: var _spawner     : Node2D
+42: var _gap         : float  = 260.0   ## logical gap – catch check uses this
+43: var _chaser_y    : float  = GROUND_CENTER
+44: var _vel_y       : float  = 0.0
+45: var _on_ground   : bool   = true
+46: ## "run" | "jump" | "fall" | "slide" | "grab"
+47: var _ai_state    : String = "run"
+48: var _slide_timer : float  = 0.0
+49: var _grab_timer  : float  = 0.0
+50: var _caught_once : bool   = false
+51: var _anim_time   : float  = 0.0
+52: var _prev_stuck  : bool   = false   ## for once-per-change print
+53: var _gun_tip     : Vector2 = Vector2.ZERO  ## updated each _draw for flash
+54: var _show_flash  : bool   = false   ## true for one rendered frame at catch moment
+55: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

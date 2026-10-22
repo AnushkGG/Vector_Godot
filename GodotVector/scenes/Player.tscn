@@ -1,0 +1,50 @@
+[gd_scene load_steps=9 format=3]
+[ext_resource type="Script" path="res://scripts/Player.gd" id="1_scr"]
+[ext_resource type="Texture2D" path="res://assets/player_sheet.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/particle.png" id="3_prt"]
+[ext_resource type="AudioStream" path="res://assets/jump.wav" id="4_sfx"]
+[ext_resource type="AudioStream" path="res://assets/hit.wav" id="5_sfx"]
+[ext_resource type="Script" path="res://scripts/PlayerVisual.gd" id="6_vis"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_norm"]
+size = Vector2(30, 80)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_slide"]
+size = Vector2(80, 40)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_scr")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("2_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 100, 100)
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("6_vis")
+
+[node name="ColNormal" type="CollisionShape2D" parent="."]
+position = Vector2(0, 10)
+shape = SubResource("RectangleShape2D_norm")
+
+[node name="ColSlide" type="CollisionShape2D" parent="."]
+position = Vector2(0, 30)
+shape = SubResource("RectangleShape2D_slide")
+disabled = true
+
+[node name="DustParticles" type="CPUParticles2D" parent="."]
+position = Vector2(-20, 40)
+emitting = false
+amount = 16
+texture = ExtResource("3_prt")
+gravity = Vector2(-200, -100)
+initial_velocity_min = 50.0
+initial_velocity_max = 100.0
+scale_amount_min = 0.5
+scale_amount_max = 2.0
+color = Color(0.8, 0.8, 0.8, 0.5)
+
+[node name="SfxJump" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_sfx")
+[node name="SfxHit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_sfx")

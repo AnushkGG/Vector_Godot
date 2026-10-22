@@ -1,0 +1,27 @@
+{
+	"name": "Event sheet 1",
+	"events": [
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "every-tick",
+					"objectClass": "System",
+					"sid": 286422621576463
+				}
+			],
+			"actions": [
+				{
+					"id": "set-x",
+					"objectClass": "player",
+					"sid": 249649357639170,
+					"parameters": {
+						"x": "player.X + 5"
+					}
+				}
+			],
+			"sid": 986020184903863
+		}
+	],
+	"sid": 811982482697728
+}

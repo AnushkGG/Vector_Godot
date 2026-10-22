@@ -1,0 +1,64 @@
+Created At: 2026-10-15T20:07:41Z
+Completed At: 2026-10-15T20:07:42Z
+File Path: `file:///c:/Users/ANANYA%20KOMARWAR/Downloads/vector/GodotVector/scripts/Chaser.gd`
+Total Lines: 405
+Total Bytes: 16302
+Showing lines 160 to 215
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+160: # ── AI ────────────────────────────────────────────────────────
+161: 
+162: func _ai_scan(speed: float) -> void:
+163: 	if not _spawner:
+164: 		return
+165: 	var chaser_x  : float = _player.global_position.x - _gap
+166: 	var look_dist : float = speed * LOOKAHEAD_TIME
+167: 	var zones     : Array = _spawner.get("_active_zones")
+168: 	if not zones:
+169: 		return
+170: 
+171: 	var best_left : float      = INF
+172: 	var best_info : Dictionary = {}
+173: 	for info : Dictionary in zones:
+174: 		var z      : Rect2 = info["rect"]
+175: 		var z_left : float = z.position.x
+176: 		var z_right: float = z.position.x + z.size.x
+177: 		if z_right > chaser_x and z_left < chaser_x + look_dist:
+178: 			if z_left < best_left:
+179: 				best_left = z_left
+180: 				best_info = info
+181: 
+182: 	if best_info.is_empty():
+183: 		return
+184: 
+185: 	if best_info["is_beam"]:
+186: 		var bw : float = best_info["rect"].size.x
+187: 		_ai_state    = "slide"
+188: 		_slide_timer = maxf(bw / speed + 0.2, 0.4)
+189: 	else:
+190: 		_do_jump()
+191: 
+192: func _do_jump() -> void:
+193: 	if _on_ground:
+194: 		_vel_y     = JUMP_VEL
+195: 		_on_ground = false
+196: 		_ai_state  = "jump"
+197: 
+198: func _should_slide_on_landing(chaser_x: float) -> bool:
+199: 	if not _spawner:
+200: 		return false
+201: 	var zones : Array = _spawner.get("_active_zones")
+202: 	for info : Dictionary in zones:
+203: 		var is_beam : bool  = info["is_beam"]
+204: 		var kind    : int   = info["kind"]
+205: 		var z       : Rect2 = info["rect"]
+206: 		if is_beam and chaser_x >= z.position.x and chaser_x <= z.position.x + z.size.x:
+207: 			return true
+208: 		if kind == 6:
+209: 			var bs : float = z.position.x + 275.0
+210: 			if chaser_x >= bs and chaser_x <= bs + 220.0:
+211: 				return true
+212: 	return false
+213: 
+214: # ── Animation ─────────────────────────────────────────────────
+215: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
